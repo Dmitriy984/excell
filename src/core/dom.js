@@ -14,7 +14,7 @@ class Dom {
   }
 
   text(text) {
-    if (typeof text === 'string') {
+    if (typeof text !== 'undefined') {
       this.$el.textContent = text
       return this
     }
@@ -79,6 +79,13 @@ class Dom {
     return this
   }
 
+  getStyles(styles = []) {
+    return styles.reduce((result, style) => {
+      result[style] = this.$el.style[style]
+      return result
+    }, {})
+  }
+
   id(parse) {
     if (parse) {
       const [row, col] = this.id().split(':')
@@ -95,10 +102,23 @@ class Dom {
     return this
   }
 
+  attribute(name, value) {
+    if (value) {
+      this.$el.setAttribute(name, value)
+      return this
+    }
+    return this.$el.getAttribute(name)
+  }
+
   addClass(className) {
     this.$el.classList.add(className)
     return this
   }
+
+  // toggleClass(className) {
+  //   this.$el.classList.toggle(className)
+  //   return this
+  // }
 
   removeClass(className) {
     this.$el.classList.remove(className)
