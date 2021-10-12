@@ -1,3 +1,7 @@
+import {toInlineStyles} from '@core/utils';
+import {defaultStyles} from '@/constants';
+import {parse} from '@core/parse';
+
 const CODES = {
   A: 65,
   Z: 90
@@ -13,23 +17,30 @@ function getHeight(state, index) {
   return (state[index] || DEFAULT_HEIGHT) + 'px'
 }
 
-function addStyle(value, defaultValue, property) {
-  return parseInt(value) !== defaultValue ? `style="${property}: ${value}"` : ''
+function addStyle(value, defaultValue, property, styles = '') {
+  return parseInt(value) !== defaultValue
+    ? `style="${styles}; ${property}: ${value}"`
+    : `style="${styles}"`
 }
 
 function toCell(state, row) {
   return function(_, col) {
     const id = `${row}:${col}`
     const width = getWidth(state.colState, col)
-    const data = state.dataState[id]
+    const data = state.dataState[id] || ''
+    const styles = toInlineStyles({
+      ...defaultStyles,
+      ...state.stylesState[id]
+    })
     return `
       <div
         class="cell" contenteditable=""
         data-col="${col}"
         data-type="cell"
         data-id="${id}"
-        ${addStyle(width, DEFAULT_WIDTH, 'width')}
-      >${data || ''}</div>
+        data-value="${data}"
+        ${addStyle(width, DEFAULT_WIDTH, 'width', styles)}
+      >${parse(data)}</div>
     `
   }
 }
@@ -40,7 +51,7 @@ function toColumn({col, index, width}) {
         class="column"
         data-type="resizable"
         data-col="${index}"
-        ${addStyle(width, DEFAULT_WIDTH, 'width')}
+        style="width: ${width}"
     >
         ${col}
         <div class="col-resize" data-resize="col"></div>
